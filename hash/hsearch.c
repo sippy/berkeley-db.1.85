@@ -49,7 +49,7 @@ static char sccsid[] = "@(#)hsearch.c	8.4 (Berkeley) 7/21/94";
 static DB *dbp = NULL;
 static ENTRY retval;
 
-extern int
+extern void *
 hcreate(nel)
 	u_int nel;
 {
@@ -62,7 +62,7 @@ hcreate(nel)
 	info.hash = NULL;
 	info.lorder = 0;
 	dbp = (DB *)__hash_open(NULL, O_CREAT | O_RDWR, 0600, &info, 0);
-	return ((int)dbp);
+	return ((void *)dbp);
 }
 
 extern ENTRY *

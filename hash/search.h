@@ -46,6 +46,6 @@ typedef enum {
 	FIND, ENTER
 } ACTION;
 
-int	 hcreate __P((unsigned int));
-void	 hdestroy __P((void));
-ENTRY	*hsearch __P((ENTRY, ACTION));
+void	*hcreate(unsigned int);
+void	 hdestroy(void);
+ENTRY	*hsearch(ENTRY, ACTION);
