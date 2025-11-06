@@ -2,6 +2,7 @@
 #include <sys/cdefs.h>
 
 #include <compat.h>
+#include <stdio.h>
 
 #ifdef __STDC__
 #include <stdarg.h>
