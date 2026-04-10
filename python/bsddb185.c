@@ -13,6 +13,7 @@
    www.nightmare.com/software.html
 */
 
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #ifdef WITH_THREAD
 #include "pythread.h"
@@ -271,7 +272,7 @@ bsddb_subscript(bsddbobject *dp, PyObject *key)
 	int status;
 	DBT krec, drec;
 	char *data,buf[4096];
-	int size;
+	Py_ssize_t size;
 	PyObject *result;
 	recno_t recno;
 	
@@ -312,7 +313,7 @@ bsddb_subscript(bsddbobject *dp, PyObject *key)
 		return NULL;
 	}
 
-	result = PyString_FromStringAndSize(data, (int)drec.size);
+	result = PyBytes_FromStringAndSize(data, (int)drec.size);
 	if (data != buf) free(data);
 	return result;
 }
@@ -323,7 +324,7 @@ bsddb_ass_sub(bsddbobject *dp, PyObject *key, PyObject *value)
 	int status;
 	DBT krec, drec;
 	char *data;
-	int size;
+	Py_ssize_t size;
 	recno_t recno;
 
 	if (dp->di_type == DB_RECNO) {
@@ -422,9 +423,9 @@ bsddb_keys(bsddbobject *dp)
 	if (status == 0 && data==NULL) return PyErr_NoMemory();
 	while (status == 0) {
 		if (dp->di_type == DB_RECNO)
-			item = PyInt_FromLong(*((int*)data));
+			item = PyLong_FromLong(*((int*)data));
 		else
-			item = PyString_FromStringAndSize(data,
+			item = PyBytes_FromStringAndSize(data,
 							  (int)krec.size);
 		if (data != buf) free(data);
 		if (item == NULL) {
@@ -466,7 +467,7 @@ bsddb_has_key(bsddbobject *dp, PyObject *args)
 	DBT krec, drec;
 	int status;
 	char *data;
-	int size;
+	Py_ssize_t size;
 	recno_t recno;
 
 	if (dp->di_type == DB_RECNO) {
@@ -495,7 +496,7 @@ bsddb_has_key(bsddbobject *dp, PyObject *args)
 		return NULL;
 	}
 
-	return PyInt_FromLong(status == 0);
+	return PyLong_FromLong(status == 0);
 }
 
 static PyObject *
@@ -504,7 +505,7 @@ bsddb_set_location(bsddbobject *dp, PyObject *key)
 	int status;
 	DBT krec, drec;
 	char *data,buf[4096];
-	int size;
+	Py_ssize_t size;
 	PyObject *result;
 	recno_t recno;
 
@@ -592,10 +593,10 @@ bsddb_seq(bsddbobject *dp, int sequence_request)
 	}
 
 	if (dp->di_type == DB_RECNO)
-		result = Py_BuildValue("is#", *((int*)kdata),
+		result = Py_BuildValue("iy#", *((int*)kdata),
 				       ddata, drec.size);
 	else
-		result = Py_BuildValue("s#s#", kdata, krec.size,
+		result = Py_BuildValue("y#y#", kdata, krec.size,
 				       ddata, drec.size);
 	if (kdata != kbuf) free(kdata);
 	if (ddata != dbuf) free(ddata);
@@ -635,7 +636,7 @@ bsddb_sync(bsddbobject *dp)
 		PyErr_SetFromErrno(BsddbError);
 		return NULL;
 	}
-	return PyInt_FromLong(status = 0);
+	return PyLong_FromLong(status = 0);
 }
 static PyMethodDef bsddb_methods[] = {
 	{"close",		(PyCFunction)bsddb_close, METH_NOARGS},
@@ -651,26 +652,40 @@ static PyMethodDef bsddb_methods[] = {
 };
 
 static PyObject *
-bsddb_getattr(PyObject *dp, char *name)
+bsddb_getattro(PyObject *self, PyObject *name)
 {
-	return Py_FindMethod(bsddb_methods, dp, name);
+	return PyObject_GenericGetAttr(self, name);
 }
 
 static PyTypeObject Bsddbtype = {
 	PyObject_HEAD_INIT(NULL)
-	0,
 	"bsddb.bsddb",
 	sizeof(bsddbobject),
 	0,
 	(destructor)bsddb_dealloc, /*tp_dealloc*/
 	0,			/*tp_print*/
-	(getattrfunc)bsddb_getattr, /*tp_getattr*/
+	0,                      /*tp_getattr*/
 	0,			/*tp_setattr*/
 	0,			/*tp_compare*/
 	0,			/*tp_repr*/
 	0,			/*tp_as_number*/
 	0,			/*tp_as_sequence*/
 	&bsddb_as_mapping,	/*tp_as_mapping*/
+        (hashfunc)0,            /*tp_hash*/
+        (ternaryfunc)0,         /*tp_call*/
+        (reprfunc)0,            /*tp_str*/
+        (getattrofunc)bsddb_getattro, /* tp_getattro */
+        0,                      /* tp_setattro */
+        0,                      /* tp_as_buffer */
+        Py_TPFLAGS_DEFAULT,     /*tp_flags*/
+        0,                      /* tp_doc - Documentation string */
+        0,                      /* tp_traverse */
+        0,                      /* tp_clear */
+        0,                      /* tp_richcompare */
+        0,                      /* tp_weaklistoffset */
+        0,                      /* tp_iter */
+        0,                      /* tp_iternext */
+        bsddb_methods,          /* tp_methods */
 };
 
 static PyObject *
@@ -843,16 +858,30 @@ static PyMethodDef bsddbmodule_methods[] = {
 	{0,		0},
 };
 
+static struct PyModuleDef bsddbmodule = {
+        PyModuleDef_HEAD_INIT,
+        "bsddb185",
+        0,
+        -1,
+        bsddbmodule_methods,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+};
+
 PyMODINIT_FUNC
-initbsddb185(void) {
+PyInit_bsddb185(void) {
 	PyObject *m, *d;
 
-	Bsddbtype.ob_type = &PyType_Type;
-	m = Py_InitModule("bsddb185", bsddbmodule_methods);
+	if (PyType_Ready(&Bsddbtype) < 0)
+                return NULL;
+	m = PyModule_Create(&bsddbmodule);
 	if (m == NULL)
-		return;
+		return NULL;
 	d = PyModule_GetDict(m);
 	BsddbError = PyErr_NewException("bsddb.error", NULL, NULL);
 	if (BsddbError != NULL)
 		PyDict_SetItemString(d, "error", BsddbError);
+        return m;
 }
