@@ -1,0 +1,20 @@
+Metadata-Version: 1.0
+Name: bsddb185
+Version: 1.1
+Summary: UNKNOWN
+Home-page: http://www.webfast.com/~skip/python/
+Author: Skip Montanaro
+Author-email: skip@pobox.com
+License: UNKNOWN
+Download-URL: http://www.webfast.com/~skip/python/bsddb185-1.1.tar.gz
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 6 - Mature
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Python Software Foundation License
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: POSIX :: BSD
+Classifier: Programming Language :: C
+Classifier: Programming Language :: Python
+Classifier: Topic :: Database

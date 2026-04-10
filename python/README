@@ -1,0 +1,6 @@
+This is the bsddb185 module from Python 2.6.  It is not present in Python 3,
+but still might be useful, especially on BSD Unix variants which still use
+Berkeley DB 1.85 hash files.  Because of known bugs in the underlying
+library which were only fixed by modifying the hash file format you should
+not use this module for new development.
+
