@@ -19,8 +19,10 @@ if os.path.exists(f):
     m = re.search(r"#s*define\s+HASHVERSION\s+2\s*", data)
     if m is not None:
         # bingo - old version used hash file format version 2
-        # XXX Can someone confirm this osf1 test?
-        libraries = sys.platform == "osf1" and ['db'] or None
+        # Platforms like FreeBSD may provide dbopen() from libc, but Linux
+        # needs an explicit libdb link to avoid leaving dbopen unresolved
+        # until dlopen() time.
+        libraries = sys.platform in ("osf1", "linux", "linux2") and ['db'] or None
         if libraries is not None:
             ext = (Extension('bsddb185', ['bsddb185.c'],
                              libraries=libraries))
