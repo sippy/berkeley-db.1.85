@@ -658,34 +658,14 @@ bsddb_getattro(PyObject *self, PyObject *name)
 }
 
 static PyTypeObject Bsddbtype = {
-	PyObject_HEAD_INIT(NULL)
-	"bsddb.bsddb",
-	sizeof(bsddbobject),
-	0,
-	(destructor)bsddb_dealloc, /*tp_dealloc*/
-	0,			/*tp_print*/
-	0,                      /*tp_getattr*/
-	0,			/*tp_setattr*/
-	0,			/*tp_compare*/
-	0,			/*tp_repr*/
-	0,			/*tp_as_number*/
-	0,			/*tp_as_sequence*/
-	&bsddb_as_mapping,	/*tp_as_mapping*/
-        (hashfunc)0,            /*tp_hash*/
-        (ternaryfunc)0,         /*tp_call*/
-        (reprfunc)0,            /*tp_str*/
-        (getattrofunc)bsddb_getattro, /* tp_getattro */
-        0,                      /* tp_setattro */
-        0,                      /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,     /*tp_flags*/
-        0,                      /* tp_doc - Documentation string */
-        0,                      /* tp_traverse */
-        0,                      /* tp_clear */
-        0,                      /* tp_richcompare */
-        0,                      /* tp_weaklistoffset */
-        0,                      /* tp_iter */
-        0,                      /* tp_iternext */
-        bsddb_methods,          /* tp_methods */
+	PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "bsddb.bsddb",
+	.tp_basicsize = sizeof(bsddbobject),
+	.tp_dealloc = (destructor)bsddb_dealloc,
+	.tp_as_mapping = &bsddb_as_mapping,
+	.tp_getattro = (getattrofunc)bsddb_getattro,
+	.tp_flags = Py_TPFLAGS_DEFAULT,
+	.tp_methods = bsddb_methods,
 };
 
 static PyObject *
