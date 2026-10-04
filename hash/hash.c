@@ -302,6 +302,12 @@ init_hash(hashp, file, info)
 		if (stat(file, &statbuf))
 			return (NULL);
 		hashp->BSIZE = statbuf.st_blksize;
+		/*
+		 * Filesystems such as ZFS report huge block sizes; page
+		 * offsets are 16 bit, so stay well clear of 64K.
+		 */
+		if (hashp->BSIZE > MAX_BSIZE / 2)
+			hashp->BSIZE = MAX_BSIZE / 2;
 		hashp->BSHIFT = __log2(hashp->BSIZE);
 	}
 
