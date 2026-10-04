@@ -53,16 +53,11 @@ def bundled_ext():
         sys.exit("db 1.85 sources not found (%s); build from a full "
                  "checkout of berkeley-db.1.85" % ', '.join(missing))
     # mpool.h needs CIRCLEQ_* from the 4.4BSD <sys/queue.h>, which modern
-    # FreeBSD and musl don't provide; supply the bundled copy (and cdefs.h
-    # where the system lacks one).
+    # FreeBSD and musl don't provide; supply the bundled copy.
     shim = os.path.join('build', 'db185-include')
     os.makedirs(os.path.join(shim, 'sys'), exist_ok=True)
-    shims = ['queue.h']
-    if not os.path.exists('/usr/include/sys/cdefs.h'):
-        shims.append('cdefs.h')
-    for h in shims:
-        shutil.copyfile(os.path.join(top, 'PORT', 'include', h),
-                        os.path.join(shim, 'sys', h))
+    shutil.copyfile(os.path.join(top, 'PORT', 'include', 'queue.h'),
+                    os.path.join(shim, 'sys', 'queue.h'))
     port = os.path.join(top, 'PORT', 'linux')
     return Extension('bsddb185', sources,
                      include_dirs=[os.path.join(port, 'include'), shim],
