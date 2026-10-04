@@ -35,6 +35,11 @@
 
 #include <sys/queue.h>
 
+/* Modern glibc no longer provides the K&R __P() macro. */
+#ifndef __P
+#define	__P(protos)	protos
+#endif
+
 /*
  * The memory pool scheme is a simple one.  Each in-memory page is referenced
  * by a bucket which is threaded in up to two of three ways.  All active pages

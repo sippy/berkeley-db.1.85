@@ -39,6 +39,11 @@
 #include <sys/types.h>
 #include <sys/cdefs.h>
 
+/* Modern glibc no longer provides the K&R __P() macro. */
+#ifndef __P
+#define	__P(protos)	protos
+#endif
+
 #include <limits.h>
 
 #ifdef __DBINTERFACE_PRIVATE
